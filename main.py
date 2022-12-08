@@ -67,13 +67,25 @@ if __name__ == "__main__":
         # Adiciona banco na lista global de bancos
         banks.append(bank)
 
+    # @Caio: arrays de Threads para finalização
+    payment_processors: PaymentProcessor = []
+    transaction_generators: TransactionGenerator = []
+
     # Inicializa gerador de transações e processadores de pagamentos para os Bancos Nacionais:
     for i, bank in enumerate(banks):
+        # criando as contas do banco (20 para cada banco)
+        for _ in range(20):
+            bank.new_account(
+                balance=randint(0, 20_000), overdraft_limit=randint(200, 10_000)
+            )
+
         # Inicializa um TransactionGenerator thread por banco:
-        TransactionGenerator(_id=i, bank=bank).start()
+        transaction_generators.append(TransactionGenerator(_id=i, bank=bank).start())
+
         # Inicializa um PaymentProcessor thread por banco.
         # Sua solução completa deverá funcionar corretamente com múltiplos PaymentProcessor threads para cada banco.
-        PaymentProcessor(_id=i, bank=bank).start()
+        for _ in range(2):  # TODO: trocar quantidade no range se necessário
+            payment_processors.append(PaymentProcessor(_id=i, bank=bank).start())
 
     # Enquanto o tempo total de simuação não for atingido:
     while t < total_time:
@@ -85,7 +97,11 @@ if __name__ == "__main__":
         t += dt
 
     # Finaliza todas as threads
-    # TODO
+    for processor in payment_processors:
+        processor.join()
+
+    for generator in transaction_generators:
+        generator.join()
 
     # Termina simulação. Após esse print somente dados devem ser printados no console.
     LOGGER.info(f"A simulação chegou ao fim!\n")
