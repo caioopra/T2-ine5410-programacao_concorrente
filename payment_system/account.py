@@ -37,6 +37,10 @@ class Account:
         Adiciona o valor `amount` ao saldo da conta bancária.
     withdraw(amount: int) -> None:
         Remove o valor `amount` do saldo da conta bancária.
+    lock() -> None:
+        Faz acquire no lock da conta
+    unlock() -> None:
+        Faz release no lock da conta
     """
 
     _id: int
@@ -45,7 +49,7 @@ class Account:
     balance: int = 0
     overdraft_limit: int = 0
     # @Caio: cada conta possui lock proprio para operações
-    lock: Lock = Lock()
+    _lock: Lock = Lock()
 
     def info(self) -> None:
         """
@@ -66,9 +70,9 @@ class Account:
         PaymentProcessors, então modifique-o para garantir que não ocorram erros de concorrência!
         """
         # TODO: IMPLEMENTE AS MODIFICAÇÕES NECESSÁRIAS NESTE MÉTODO !
-        # @Caio: protege a operação com o lock
-        with self.lock:
-            self.balance += amount
+
+        # @Caio: operação já protegida com lock da conta pelo método que a chama
+        self.balance += amount
 
         LOGGER.info(f"deposit({amount}) successful!")
         return True
@@ -82,23 +86,26 @@ class Account:
         """
         # TODO: IMPLEMENTE AS MODIFICAÇÕES NECESSÁRIAS NESTE MÉTODO !
 
-        with self.lock:
-            if self.balance >= amount:
-            # @Caio: proteção da operação
+        if self.balance >= amount:
+            self.balance -= amount
+            LOGGER.info(f"withdraw({amount}) successful!")
+            return True
+        else:
+            overdrafted_amount = abs(self.balance - amount)
+            if self.overdraft_limit >= overdrafted_amount:
                 self.balance -= amount
-                LOGGER.info(f"withdraw({amount}) successful!")
+                LOGGER.info(f"withdraw({amount}) successful with overdraft!")
+
                 return True
             else:
-                overdrafted_amount = abs(self.balance - amount)
-                if self.overdraft_limit >= overdrafted_amount:
-                    self.balance -= amount
-                    LOGGER.info(f"withdraw({amount}) successful with overdraft!")
+                LOGGER.warning(f"withdraw({amount}) failed, no balance!")
+                return False
 
-                    return True
-                else:
-                    LOGGER.warning(f"withdraw({amount}) failed, no balance!")
-                    return False
+    def lock(self):
+        self._lock.acquire()
 
+    def unlock(self):
+        self._lock.release()
 
 @dataclass
 class CurrencyReserves:

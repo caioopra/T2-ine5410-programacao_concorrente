@@ -71,6 +71,14 @@ class PaymentProcessor(Thread):
         Ela deve retornar o status da transacão processada.
         """
         # TODO: IMPLEMENTE/MODIFIQUE O CÓDIGO NECESSÁRIO ABAIXO !
+        # @Caio
+        # 0 = banco; 1 = conta
+        # se for operação com o mesmo banco (nacional) 
+        if transaction.origin(0) == transaction.destination(0):
+            ... # função para operação nacional
+        else:
+            ... # funcção para operação internacional
+
 
         LOGGER.info(
             f"PaymentProcessor {self._id} do Banco {self.bank._id} iniciando processamento da Transaction {transaction._id}!"
