@@ -46,6 +46,7 @@ class Bank:
         self.operating = False
         self.accounts = []
         self.transaction_queue = []
+        self.payment_processors = []
 
     def new_account(self, balance: int = 0, overdraft_limit: int = 0) -> None:
         """
@@ -54,7 +55,7 @@ class Bank:
         """
         # TODO: IMPLEMENTE AS MODIFICAÇÕES, SE NECESSÁRIAS, NESTE MÉTODO!
 
-        # Gera _id para a nova Account
+        # Gera _id para a nova Account (1a conta de usuários: id = 7)
         acc_id = len(self.accounts) + 1
 
         # Cria instância da classe Account

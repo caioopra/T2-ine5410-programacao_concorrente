@@ -68,7 +68,6 @@ if __name__ == "__main__":
         banks.append(bank)
 
     # @Caio: arrays de Threads para finalização
-    payment_processors: PaymentProcessor = []
     transaction_generators: TransactionGenerator = []
 
     # Inicializa gerador de transações e processadores de pagamentos para os Bancos Nacionais:
@@ -80,12 +79,18 @@ if __name__ == "__main__":
             )
 
         # Inicializa um TransactionGenerator thread por banco:
-        transaction_generators.append(TransactionGenerator(_id=i, bank=bank).start())
+        generator = TransactionGenerator(_id=i, bank=bank)
+        transaction_generators.append(generator)
+        generator.start()
 
         # Inicializa um PaymentProcessor thread por banco.
         # Sua solução completa deverá funcionar corretamente com múltiplos PaymentProcessor threads para cada banco.
         for _ in range(2):  # TODO: trocar quantidade no range se necessário
-            payment_processors.append(PaymentProcessor(_id=i, bank=bank).start())
+            processor = PaymentProcessor(_id=i, bank=bank)
+            bank.payment_processors.append(processor)
+            processor.start()
+
+        bank.operating = True
 
     # Enquanto o tempo total de simuação não for atingido:
     while t < total_time:
@@ -96,10 +101,16 @@ if __name__ == "__main__":
         # Atualiza a variável tempo considerando o intervalo de criação dos clientes:
         t += dt
 
-    # Finaliza todas as threads
-    for processor in payment_processors:
-        processor.join()
+    # join nas threads
+    for bank in banks:
+        for processor in bank.payment_processors:
+            processor.join()
 
+    # fechando bancos
+    # for bank in banks:
+    #     bank.operating = False
+
+    # finaliza threads dos geradores de transações
     for generator in transaction_generators:
         generator.join()
 

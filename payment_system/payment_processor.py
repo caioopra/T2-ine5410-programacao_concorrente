@@ -51,7 +51,8 @@ class PaymentProcessor(Thread):
         while self.bank.operating:
             try:
                 transaction = queue.pop()
-                LOGGER.info(f"Transaction_queue do Banco {self.bank._id}: {queue}")
+                #LOGGER.info(f"Transaction_queue do Banco {self.bank._id}: {queue}")
+                LOGGER.info(f"{self.bank._id} ") # TODO: trocar de volta o print
             except Exception as err:
                 LOGGER.error(f"Falha em PaymentProcessor.run(): {err}")
             else:
@@ -59,7 +60,7 @@ class PaymentProcessor(Thread):
             time.sleep(3 * time_unit)  # Remova esse sleep após implementar sua solução!
 
         LOGGER.info(
-            f"O PaymentProcessor {self._id} do banco {self._bank_id} foi finalizado."
+            f"O PaymentProcessor {self._id} do banco {self.bank._id} foi finalizado."
         )
 
     def process_transaction(self, transaction: Transaction) -> TransactionStatus:
@@ -73,12 +74,34 @@ class PaymentProcessor(Thread):
         # TODO: IMPLEMENTE/MODIFIQUE O CÓDIGO NECESSÁRIO ABAIXO !
         # @Caio
         # 0 = banco; 1 = conta
+        
         # se for operação com o mesmo banco (nacional) 
-        if transaction.origin(0) == transaction.destination(0):
-            ... # função para operação nacional
-        else:
-            ... # funcção para operação internacional
+        origin_acc = self.bank.accounts[transaction.origin[1] - 1]
 
+        if transaction.origin[0] == transaction.destination[0]:
+            destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
+            if transaction.origin(1)._id > transaction.destination(1)._id:
+                destiny_acc.lock()
+                origin_acc.lock()
+            else:
+                origin_acc.lock()
+                destiny_acc.unlock()
+            
+            withdraw = origin_acc.withdraw(transaction.amount)
+            if withdraw:
+                destiny_acc.deposit(transaction.amount)
+                transaction.set_status(TransactionStatus.SUCCESSFUL)
+            else:
+                transaction.set_status(TransactionStatus.FAILED)
+        # operação internacional
+        else:
+            LOGGER.info("   internacional")
+            # TODO: implementar transção internacional
+            """
+            conta_origem -> banco_conta_origem -> conta_destino
+                -> trancar conta de destino antes de mexer nela?
+            """
+            
 
         LOGGER.info(
             f"PaymentProcessor {self._id} do Banco {self.bank._id} iniciando processamento da Transaction {transaction._id}!"
