@@ -5,6 +5,7 @@ from globals import *
 from payment_system.bank import Bank
 from utils.transaction import Transaction, TransactionStatus
 from utils.logger import LOGGER
+from utils.currency import get_exchange_rate
 
 
 class PaymentProcessor(Thread):
@@ -57,7 +58,7 @@ class PaymentProcessor(Thread):
                 LOGGER.error(f"Falha em PaymentProcessor.run(): {err}")
             else:
                 self.process_transaction(transaction)
-            time.sleep(3 * time_unit)  # Remova esse sleep após implementar sua solução!
+            # time.sleep(3 * time_unit)  # Remova esse sleep após implementar sua solução!
 
         LOGGER.info(
             f"O PaymentProcessor {self._id} do banco {self.bank._id} foi finalizado."
@@ -79,6 +80,7 @@ class PaymentProcessor(Thread):
         origin_acc = self.bank.accounts[transaction.origin[1] - 1]
 
         if transaction.origin[0] == transaction.destination[0]:
+
             destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
             if transaction.origin[1]._id > transaction.destination[1]._id:
                 destiny_acc.lock()
@@ -98,7 +100,56 @@ class PaymentProcessor(Thread):
                 transaction.set_status(TransactionStatus.FAILED)
             destiny_acc.unlock()
         # operação internacional
+            
         else:
+            destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
+            if transaction.origin[0]._id > transaction.destination[0]._id:
+                destiny_acc.lock()
+                origin_acc.lock()
+            else:
+                origin_acc.lock()
+                destiny_acc.lock()
+            
+            withdraw = origin_acc.withdraw(transaction.amount)
+            origin_acc.unlock()
+
+            if withdraw:
+
+                amount_after_conversion = transaction.amount*get_exchange_rate(origin_acc.currency,destiny_acc.currency)
+
+                if destiny_acc.currency == 1:
+                    self.bank.reserves.USD.deposit(amount_after_conversion)
+                    withdraw = self.bank.reserves.USD.withdraw(amount_after_conversion)
+                    
+                elif destiny_acc.currency == 2:
+                    self.bank.reserve.EUR.deposit(amount_after_conversion)
+                    withdraw = self.bank.reserves.EUR.withdraw(amount_after_conversion)
+                   
+                elif destiny_acc.currency == 3:
+                    self.bank.reserves.GBP.deposit(amount_after_conversion)
+                    withdraw = self.bank.reserves.GBP.withdraw(amount_after_conversion)
+                    
+                elif destiny_acc.currency == 4:
+                    self.bank.reserves.JPY.deposit(amount_after_conversion)
+                    withdraw = self.bank.reserves.JPY.withdraw(amount_after_conversion)
+                    
+                elif destiny_acc.currency == 5:
+                    self.bank.reserves.CFH.deposit(amount_after_conversion)
+                    withdraw = self.bank.reserves.CFH.withdraw(amount_after_conversion)
+                   
+
+                elif destiny_acc.currency == 6:
+                    self.bank.reserves.BRL.deposit(amount_after_conversion)
+                    withdraw = self.bank.reserves.BRL.withdraw(amount_after_conversion)
+                
+                if withdraw:
+                        destiny_acc.deposit(amount_after_conversion)
+                        destiny_acc.unlock()
+
+            
+
+                
+
             # TODO: implementar transção internacional
             """
             conta_origem -> banco_conta_origem -> conta_destino
