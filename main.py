@@ -72,6 +72,8 @@ if __name__ == "__main__":
 
     # Inicializa gerador de transações e processadores de pagamentos para os Bancos Nacionais:
     for i, bank in enumerate(banks):
+        bank.operating = True
+
         # criando as contas do banco (20 para cada banco)
         for _ in range(20):
             bank.new_account(
@@ -90,7 +92,6 @@ if __name__ == "__main__":
             bank.payment_processors.append(processor)
             processor.start()
 
-        bank.operating = True
 
     # Enquanto o tempo total de simuação não for atingido:
     while t < total_time:
