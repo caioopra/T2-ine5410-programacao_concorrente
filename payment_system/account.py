@@ -42,14 +42,14 @@ class Account:
     unlock() -> None:
         Faz release no lock da conta
     """
-
-    _id: int
-    _bank_id: int
-    currency: Currency
-    balance: int = 0
-    overdraft_limit: int = 0
-    # @Caio: cada conta possui lock proprio para operações
-    _lock: Lock = Lock()
+    def __init__(self, _id, _bank_id, currency, balance=0, overdraft_limit=0):
+        self._id = _id
+        self._bank_id = _bank_id
+        self.currency = currency
+        self.balance = balance
+        self.overdraft_limit = overdraft_limit
+        # @Caio: cada conta possui lock proprio para operações
+        self._lock = Lock()
 
     def info(self) -> None:
         """

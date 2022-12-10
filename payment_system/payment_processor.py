@@ -80,9 +80,8 @@ class PaymentProcessor(Thread):
         origin_acc = self.bank.accounts[transaction.origin[1] - 1]
 
         if transaction.origin[0] == transaction.destination[0]:
-
             destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
-            if transaction.origin[1]._id > transaction.destination[1]._id:
+            if transaction.origin[1] > transaction.destination[1]:
                 destiny_acc.lock()
                 origin_acc.lock()
             else:
@@ -99,11 +98,11 @@ class PaymentProcessor(Thread):
             else:
                 transaction.set_status(TransactionStatus.FAILED)
             destiny_acc.unlock()
+
         # operação internacional
-            
         else:
             destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
-            if transaction.origin[0]._id > transaction.destination[0]._id:
+            if transaction.origin[0] > transaction.destination[0]:
                 destiny_acc.lock()
                 origin_acc.lock()
             else:
@@ -112,9 +111,8 @@ class PaymentProcessor(Thread):
             
             withdraw = origin_acc.withdraw((transaction.amount) * 1.01)  # taxa de 1% sobre o valor para operação internacional
             origin_acc.unlock()
-
             if withdraw:
-                amount_after_conversion = transaction.amount*get_exchange_rate(origin_acc.currency,destiny_acc.currency)
+                amount_after_conversion = transaction.amount * get_exchange_rate(origin_acc.currency, destiny_acc.currency)
 
                 if destiny_acc.currency == 1:
                     self.bank.reserves.USD.lock()
@@ -156,7 +154,6 @@ class PaymentProcessor(Thread):
                     destiny_acc.deposit(amount_after_conversion)
                     destiny_acc.unlock()
             
-            # TODO: implementar transção internacional
             """
             conta_origem -> banco_conta_origem -> conta_destino
                 -> trancar conta de destino antes de mexer nela?
