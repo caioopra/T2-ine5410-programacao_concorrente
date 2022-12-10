@@ -80,22 +80,25 @@ class PaymentProcessor(Thread):
 
         if transaction.origin[0] == transaction.destination[0]:
             destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
-            if transaction.origin(1)._id > transaction.destination(1)._id:
+            if transaction.origin[1]._id > transaction.destination[1]._id:
                 destiny_acc.lock()
                 origin_acc.lock()
             else:
                 origin_acc.lock()
-                destiny_acc.unlock()
+                destiny_acc.lock()
             
             withdraw = origin_acc.withdraw(transaction.amount)
+            origin_acc.unlock()
+            
             if withdraw:
                 destiny_acc.deposit(transaction.amount)
+                
                 transaction.set_status(TransactionStatus.SUCCESSFUL)
             else:
                 transaction.set_status(TransactionStatus.FAILED)
+            destiny_acc.unlock()
         # operação internacional
         else:
-            LOGGER.info("   internacional")
             # TODO: implementar transção internacional
             """
             conta_origem -> banco_conta_origem -> conta_destino
