@@ -110,46 +110,52 @@ class PaymentProcessor(Thread):
                 origin_acc.lock()
                 destiny_acc.lock()
             
-            withdraw = origin_acc.withdraw(transaction.amount)
+            withdraw = origin_acc.withdraw((transaction.amount) * 1.01)  # taxa de 1% sobre o valor para operação internacional
             origin_acc.unlock()
 
             if withdraw:
-
                 amount_after_conversion = transaction.amount*get_exchange_rate(origin_acc.currency,destiny_acc.currency)
 
                 if destiny_acc.currency == 1:
-                    self.bank.reserves.USD.deposit(amount_after_conversion)
+                    self.bank.reserves.USD.lock()
+                    self.bank.reserves.USD.deposit(amount_after_conversion * 1.01)
                     withdraw = self.bank.reserves.USD.withdraw(amount_after_conversion)
+                    self.bank.reserves.USD.unlock()
                     
                 elif destiny_acc.currency == 2:
-                    self.bank.reserve.EUR.deposit(amount_after_conversion)
+                    self.bank.reserves.EUR.lock()
+                    self.bank.reserves.EUR.deposit(amount_after_conversion * 1.01)
                     withdraw = self.bank.reserves.EUR.withdraw(amount_after_conversion)
+                    self.bank.reserves.EUR.unlock()
                    
                 elif destiny_acc.currency == 3:
-                    self.bank.reserves.GBP.deposit(amount_after_conversion)
+                    self.bank.reserves.GBP.lock()
+                    self.bank.reserves.GBP.deposit(amount_after_conversion * 1.01)
                     withdraw = self.bank.reserves.GBP.withdraw(amount_after_conversion)
+                    self.bank.reserves.GBP.unlock()
                     
                 elif destiny_acc.currency == 4:
-                    self.bank.reserves.JPY.deposit(amount_after_conversion)
+                    self.bank.reserves.JPY.lock()
+                    self.bank.reserves.JPY.deposit(amount_after_conversion * 1.01)
                     withdraw = self.bank.reserves.JPY.withdraw(amount_after_conversion)
+                    self.bank.reserves.JPY.unlock()
                     
                 elif destiny_acc.currency == 5:
-                    self.bank.reserves.CFH.deposit(amount_after_conversion)
-                    withdraw = self.bank.reserves.CFH.withdraw(amount_after_conversion)
-                   
+                    self.bank.reserves.CHF.lock()
+                    self.bank.reserves.CHF.deposit(amount_after_conversion * 1.01)
+                    withdraw = self.bank.reserves.CHF.withdraw(amount_after_conversion)
+                    self.bank.reserves.CHF.unlock()
 
                 elif destiny_acc.currency == 6:
-                    self.bank.reserves.BRL.deposit(amount_after_conversion)
+                    self.bank.reserves.BRL.lock()
+                    self.bank.reserves.BRL.deposit(amount_after_conversion * 1.01)
                     withdraw = self.bank.reserves.BRL.withdraw(amount_after_conversion)
+                    self.bank.reserves.BRL.unlock()
                 
                 if withdraw:
-                        destiny_acc.deposit(amount_after_conversion)
-                        destiny_acc.unlock()
-
+                    destiny_acc.deposit(amount_after_conversion)
+                    destiny_acc.unlock()
             
-
-                
-
             # TODO: implementar transção internacional
             """
             conta_origem -> banco_conta_origem -> conta_destino
