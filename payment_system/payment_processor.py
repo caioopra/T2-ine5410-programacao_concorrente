@@ -51,7 +51,7 @@ class PaymentProcessor(Thread):
         # @Caio: enquanto o banco está operando, processador de operações, executa
         while self.bank.operating:
             try:
-                transaction = queue.pop()
+                transaction = queue.pop(0)
                 #LOGGER.info(f"Transaction_queue do Banco {self.bank._id}: {queue}")
                 LOGGER.info(f"{self.bank._id} ") # TODO: trocar de volta o print
             except Exception as err:
