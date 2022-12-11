@@ -80,13 +80,15 @@ class PaymentProcessor(Thread):
         origin_acc = self.bank.accounts[transaction.origin[1] - 1]
         if transaction.origin[0] == transaction.destination[0]:
             if transaction.origin[1] != transaction.destination[1]:
+                with self.bank.nacional_transactions_lock:
+                    self.bank.nacional_transactions += 1
 
                 destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
 
                 if transaction.origin[1] > transaction.destination[1]:
                     destiny_acc.lock()
                     origin_acc.lock()
-                elif transaction.origin[1] < transaction.destination[1]:
+                else:
                     origin_acc.lock()
                     destiny_acc.lock()
 
@@ -104,7 +106,12 @@ class PaymentProcessor(Thread):
 
         # operação internacional
         else:
-           
+            # incrementa uma transação internacional nos dois bancos
+            with self.bank.internacional_transactions_lock:
+                self.bank.internacional_transactions += 1
+            with banks[transaction.destination[0]].internacional_transactions_lock:
+                banks[transaction.destination[0]].internacional_transactions += 1
+
             destiny_acc = banks[transaction.destination[0]].accounts[transaction.destination[1] - 1]
 
             if transaction.origin[0] > transaction.destination[0]:

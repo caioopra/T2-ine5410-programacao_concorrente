@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
         # Inicializa um TransactionGenerator thread por banco:
         generator = TransactionGenerator(_id=i, bank=bank)
-        transaction_generators.append(generator)
+        bank.transaction_generator = generator
         generator.start()
 
         # Inicializa um PaymentProcessor thread por banco.
@@ -102,18 +102,15 @@ if __name__ == "__main__":
         # Atualiza a variável tempo considerando o intervalo de criação dos clientes:
         t += dt
 
+    for bank in banks:
+        bank.operating = False
+        bank.info()
+
     # join nas threads
     for bank in banks:
+        bank.transaction_generator.join()
         for processor in bank.payment_processors:
             processor.join()
-
-    # fechando bancos
-    # for bank in banks:
-    #     bank.operating = False
-
-    # finaliza threads dos geradores de transações
-    for generator in transaction_generators:
-        generator.join()
 
     # Termina simulação. Após esse print somente dados devem ser printados no console.
     LOGGER.info(f"A simulação chegou ao fim!\n")

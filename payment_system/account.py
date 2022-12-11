@@ -107,17 +107,31 @@ class Account:
     def unlock(self):
         self._lock.release()
 
-@dataclass
+# @dataclass
+# class CurrencyReserves:
+#     """
+#     Uma classe de dados para armazenar as reservas do banco, que serão usadas
+#     para câmbio e transferências internacionais.
+#     OBS: NÃO É PERMITIDO ALTERAR ESSA CLASSE!
+#     """
+
+#     USD: Account = Account(_id=1, _bank_id=0, currency=Currency.USD)
+#     EUR: Account = Account(_id=2, _bank_id=0, currency=Currency.EUR)
+#     GBP: Account = Account(_id=3, _bank_id=0, currency=Currency.GBP)
+#     JPY: Account = Account(_id=4, _bank_id=0, currency=Currency.JPY)
+#     CHF: Account = Account(_id=5, _bank_id=0, currency=Currency.CHF)
+#     BRL: Account = Account(_id=6, _bank_id=0, currency=Currency.BRL)
+
 class CurrencyReserves:
     """
     Uma classe de dados para armazenar as reservas do banco, que serão usadas
     para câmbio e transferências internacionais.
     OBS: NÃO É PERMITIDO ALTERAR ESSA CLASSE!
     """
-
-    USD: Account = Account(_id=1, _bank_id=0, currency=Currency.USD)
-    EUR: Account = Account(_id=2, _bank_id=0, currency=Currency.EUR)
-    GBP: Account = Account(_id=3, _bank_id=0, currency=Currency.GBP)
-    JPY: Account = Account(_id=4, _bank_id=0, currency=Currency.JPY)
-    CHF: Account = Account(_id=5, _bank_id=0, currency=Currency.CHF)
-    BRL: Account = Account(_id=6, _bank_id=0, currency=Currency.BRL)
+    def __init__(self):
+        self.USD: Account = Account(_id=1, _bank_id=0, currency=Currency.USD)
+        self.EUR: Account = Account(_id=2, _bank_id=0, currency=Currency.EUR)
+        self.GBP: Account = Account(_id=3, _bank_id=0, currency=Currency.GBP)
+        self.JPY: Account = Account(_id=4, _bank_id=0, currency=Currency.JPY)
+        self.CHF: Account = Account(_id=5, _bank_id=0, currency=Currency.CHF)
+        self.BRL: Account = Account(_id=6, _bank_id=0, currency=Currency.BRL)

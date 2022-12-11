@@ -5,6 +5,7 @@ from utils.transaction import Transaction
 from utils.currency import Currency
 from utils.logger import LOGGER
 
+from threading import Lock
 
 class Bank:
     """
@@ -27,6 +28,20 @@ class Bank:
         Lista contendo as contas bancárias dos clientes do banco.
     transaction_queue : Queue[Transaction]
         Fila FIFO contendo as transações bancárias pendentes que ainda serão processadas.
+    payment_processors : List[PaymentProcessor]
+        Lista dos PaymentProcessors do banco
+    nacional_transactions : int
+        Quantidade de transações nacionais realizadas pelo banco
+    nacional_transactions_lock : Lock()
+        Lock para proteção do contador de transações nacionais
+    internacional_transactions : int
+        Quantidade de transações internacionais realizadas pelo banco
+    internacional_transactions_loc: Lock
+        Lock para proteção do contador de transações internacionais
+    bank_profit : float
+        Lucro obtido pelo banco
+    bank_profit_lock = Lock()
+        Lock para proteção da variável com lucro do banco
 
     Métodos
     -------
@@ -47,6 +62,16 @@ class Bank:
         self.accounts = []
         self.transaction_queue = []
         self.payment_processors = []
+        
+        # dados para prints ao final da execução
+        self.nacional_transactions = 0
+        self.internacional_transactions = 0
+        self.bank_profit = 0
+        
+        self.nacional_transactions_lock = Lock()
+        self.internacional_transactions_lock = Lock()
+        self.bank_profit_lock = Lock()
+        
 
     def new_account(self, balance: int = 0, overdraft_limit: int = 0) -> None:
         """
@@ -80,6 +105,27 @@ class Bank:
         5. Lucro do banco: taxas de câmbio acumuladas + juros de cheque especial acumulados
         """
         # TODO: IMPLEMENTE AS MODIFICAÇÕES, SE NECESSÁRIAS, NESTE MÉTODO!
+        print("---" * 30)
+        LOGGER.info(f"Estatísticas do Banco Nacional {self._id}:\n")
+        
+        LOGGER.info(" - Saldo de cada moeda nas reservas:")
+        LOGGER.info(f"   > USD = {self.reserves.USD.balance}")
+        LOGGER.info(f"   > EUR = {self.reserves.EUR.balance}")
+        LOGGER.info(f"   > GBP = {self.reserves.GBP.balance}")
+        LOGGER.info(f"   > JPY = {self.reserves.JPY.balance}")
+        LOGGER.info(f"   > CHF = {self.reserves.CHF.balance}")
+        LOGGER.info(f"   > BRL = {self.reserves.BRL.balance}\n")
+        
+        LOGGER.info(f" - Número de transferências nacionais: {self.nacional_transactions}\n")
+        
+        LOGGER.info(f" - Número de transferências internacionais: {self.internacional_transactions}\n")
+        
+        LOGGER.info(f" - Número de contas bancárias no banco: {len(self.accounts)}\n")
+        
+        LOGGER.info(f" - Saldo total das contas no banco:")
+        for conta in self.accounts:
+            LOGGER.info(f"   > Conta {conta._id}: {conta.balance}")
+        LOGGER.info("\n")
+        
+        LOGGER.info(f"Lucro do banco: {self.bank_profit}\n")
 
-        LOGGER.info(f"Estatísticas do Banco Nacional {self._id}:")
-        LOGGER.info(f"...")
