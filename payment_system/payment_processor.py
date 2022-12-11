@@ -78,15 +78,20 @@ class PaymentProcessor(Thread):
         
         # se for operação com o mesmo banco (nacional) 
         origin_acc = self.bank.accounts[transaction.origin[1] - 1]
-
+        LOGGER.info(f"Banco1: {transaction.origin[0]} - Banco2: {transaction.destination[0]}")
         if transaction.origin[0] == transaction.destination[0]:
+            LOGGER.info("   Nacional antes")
+            
             destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
+            LOGGER.info(f"Origem: banco {origin_acc._bank_id} - {origin_acc._id} ")
+            LOGGER.info(f"Destino: banco {destiny_acc._bank_id} - {destiny_acc._id} ")
             if transaction.origin[1] > transaction.destination[1]:
                 destiny_acc.lock()
                 origin_acc.lock()
             else:
                 origin_acc.lock()
                 destiny_acc.lock()
+            LOGGER.info("   Nacional depois")
             
             withdraw = origin_acc.withdraw(transaction.amount)
             origin_acc.unlock()
@@ -101,14 +106,18 @@ class PaymentProcessor(Thread):
 
         # operação internacional
         else:
+            LOGGER.info("   Internacional antes")
+            
             destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
+            LOGGER.info(f"Origem: banco {origin_acc._bank_id} - {origin_acc._id} ")
+            LOGGER.info(f"Destino: banco {destiny_acc._bank_id} - {destiny_acc._id} ")
             if transaction.origin[0] > transaction.destination[0]:
                 destiny_acc.lock()
                 origin_acc.lock()
             else:
                 origin_acc.lock()
                 destiny_acc.lock()
-            
+            LOGGER.info("   Internacional depois")
             withdraw = origin_acc.withdraw((transaction.amount) * 1.01)  # taxa de 1% sobre o valor para operação internacional
             origin_acc.unlock()
             if withdraw:
