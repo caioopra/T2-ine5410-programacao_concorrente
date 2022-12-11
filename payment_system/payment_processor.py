@@ -107,10 +107,10 @@ class PaymentProcessor(Thread):
         # operação internacional
         else:
             LOGGER.info("   Internacional antes")
-            
-            destiny_acc = self.bank.accounts[transaction.destination[1] - 1]
+            destiny_acc = banks[transaction.destination[0]].accounts[transaction.destination[1] - 1]
             LOGGER.info(f"Origem: banco {origin_acc._bank_id} - {origin_acc._id} ")
             LOGGER.info(f"Destino: banco {destiny_acc._bank_id} - {destiny_acc._id} ")
+            LOGGER.info(f"  {transaction.origin[0]} x {transaction.destination[0]} ")
             if transaction.origin[0] > transaction.destination[0]:
                 destiny_acc.lock()
                 origin_acc.lock()
