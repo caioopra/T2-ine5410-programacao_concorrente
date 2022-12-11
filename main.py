@@ -77,7 +77,7 @@ if __name__ == "__main__":
         # criando as contas do banco (20 para cada banco)
         for _ in range(20):
             bank.new_account(
-                balance=randint(0, 20_000), overdraft_limit=randint(200, 10_000)
+                balance=randint(1000, 100_000), overdraft_limit=randint(200, 10_000)
             )
 
         # Inicializa um TransactionGenerator thread por banco:

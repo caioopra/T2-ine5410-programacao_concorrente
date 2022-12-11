@@ -51,7 +51,7 @@ class TransactionGenerator(Thread):
             origin = (self.bank._id, randint(1, 20))
             destination_bank = randint(0, 5)
             destination = (destination_bank, randint(1, 20))
-            amount = randint(100, 1000000)
+            amount = randint(100, 100_000)
             
             new_transaction = Transaction(i, origin, destination, amount, currency=Currency(destination_bank+1))
 
