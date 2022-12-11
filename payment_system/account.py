@@ -122,6 +122,9 @@ class Account:
 #     CHF: Account = Account(_id=5, _bank_id=0, currency=Currency.CHF)
 #     BRL: Account = Account(_id=6, _bank_id=0, currency=Currency.BRL)
 
+# classe alterada por cont   a de erro quando usava a com @dataclass
+# Erro: todos os bancos tinham a memsa instância do objeto
+#       ao fim da simulação, os pritns possuiam os mesmos valores para todos os bancos
 class CurrencyReserves:
     """
     Uma classe de dados para armazenar as reservas do banco, que serão usadas
