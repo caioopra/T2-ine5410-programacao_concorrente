@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
         # Inicializa um PaymentProcessor thread por banco.
         # Sua solução completa deverá funcionar corretamente com múltiplos PaymentProcessor threads para cada banco.
-        for j in range(2):  # TODO: trocar quantidade no range se necessário
+        for j in range(2):
             processor = PaymentProcessor(_id=j, bank=bank)
             bank.payment_processors.append(processor)
             processor.start()
