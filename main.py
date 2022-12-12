@@ -110,11 +110,12 @@ if __name__ == "__main__":
         bank.info()
 
     # join nas threads
-    # for bank in banks:
-    #     bank.transaction_generator.join()
-    #     LOGGER.info("finalizou generator ", bank.transaction_generator)
+    for bank in banks:
+        # LOGGER.info("finalizou generator ", bank.transaction_generator)
+        bank.transaction_generator.join()
         
-    #     for processor in bank.payment_processors:
-    #         processor.join()
-    #         LOGGER.info("finalizou ", processor._id)
+        for processor in bank.payment_processors:
+            # LOGGER.info("finalizou ", processor._id)
+            processor.join()
+            
             
