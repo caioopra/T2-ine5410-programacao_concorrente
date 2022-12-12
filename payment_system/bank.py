@@ -42,13 +42,13 @@ class Bank:
         Lucro obtido pelo banco
     bank_profit_lock = Lock()
         Lock para proteção da variável com lucro do banco
+    queue_semaphore : Semaphore
+        Semáforo para controle da fila de operações
 
     Métodos
     -------
     new_account(balance: int = 0, overdraft_limit: int = 0) -> None:
         Cria uma nova conta bancária (Account) no banco.
-    new_transfer(origin: Tuple[int, int], destination: Tuple[int, int], amount: int, currency: Currency) -> None:
-        Cria uma nova transação bancária.
     info() -> None:
         Printa informações e estatísticas sobre o funcionamento do banco.
 
