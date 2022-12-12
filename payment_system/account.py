@@ -27,7 +27,7 @@ class Account:
         Saldo da conta bancária.
     overdraft_limit : int
         Limite de cheque especial da conta bancária.
-    lock : Lock
+    _lock : Lock
         Lock da conta bancária.
 
     Métodos
