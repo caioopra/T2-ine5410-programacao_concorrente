@@ -102,6 +102,9 @@ if __name__ == "__main__":
         # Atualiza a variável tempo considerando o intervalo de criação dos clientes:
         t += dt
 
+    # Termina simulação. Após esse print somente dados devem ser printados no console.
+    LOGGER.info(f"A simulação chegou ao fim!\n")
+
     for bank in banks:
         bank.operating = False
         bank.info()
@@ -109,8 +112,10 @@ if __name__ == "__main__":
     # join nas threads
     for bank in banks:
         bank.transaction_generator.join()
+        LOGGER.info("finalizou generator ", bank.transaction_generator)
+        
         for processor in bank.payment_processors:
             processor.join()
-
-    # Termina simulação. Após esse print somente dados devem ser printados no console.
-    LOGGER.info(f"A simulação chegou ao fim!\n")
+            LOGGER.info("finalizou ", processor._id)
+            
+    LOGGER.info("AQUI\n")
