@@ -5,7 +5,7 @@ from utils.transaction import Transaction
 from utils.currency import Currency
 from utils.logger import LOGGER
 
-from threading import Lock
+from threading import Lock, Semaphore
 
 class Bank:
     """
@@ -71,6 +71,7 @@ class Bank:
         self.nacional_transactions_lock = Lock()
         self.internacional_transactions_lock = Lock()
         self.bank_profit_lock = Lock()
+        self.queue_semaphore = Semaphore()
         
 
     def new_account(self, balance: int = 0, overdraft_limit: int = 0) -> None:
