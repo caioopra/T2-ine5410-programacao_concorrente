@@ -71,7 +71,7 @@ class Bank:
         self.nacional_transactions_lock = Lock()
         self.internacional_transactions_lock = Lock()
         self.bank_profit_lock = Lock()
-        self.queue_semaphore = Semaphore()
+        self.queue_semaphore = Semaphore(value =0)
         
 
     def new_account(self, balance: int = 0, overdraft_limit: int = 0) -> None:
