@@ -118,4 +118,3 @@ if __name__ == "__main__":
     #         processor.join()
     #         LOGGER.info("finalizou ", processor._id)
             
-    LOGGER.info("AQUI\n")
