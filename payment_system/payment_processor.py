@@ -131,50 +131,50 @@ class PaymentProcessor(Thread):
 
                 amount_after_conversion = transaction.amount * get_exchange_rate(origin_acc.currency, destiny_acc.currency)
 
-                if origin_acc.currency == 1:
+                if origin_acc.currency.value == 1:
                     origin = self.bank.reserves.USD
                     
-                elif origin_acc.currency == 2:
+                elif origin_acc.currency.value == 2:
                     origin = self.bank.reserves.EUR
 
-                elif origin_acc.currency == 3:
+                elif origin_acc.currency.value == 3:
                     origin = self.bank.reserves.GBP
 
-                elif origin_acc.currency == 4:
+                elif origin_acc.currency.value == 4:
                     origin = self.bank.reserves.JPY
                     
-                elif origin_acc.currency == 5:
+                elif origin_acc.currency.value == 5:
                     origin = self.bank.reserves.CHF
 
-                elif origin_acc.currency == 6:
+                elif origin_acc.currency.value == 6:
                     origin = self.bank.reserves.BRL
 
                 origin.lock()
                 origin.deposit(transaction.amount*1.01)
                 origin.unlock()
 
-                if destiny_acc.currency == 1:
+                if destiny_acc.currency.value == 1:
                     destiny = self.bank.reserves.USD
                     
-                elif destiny_acc.currency == 2:
+                elif destiny_acc.currency.value == 2:
                     destiny = self.bank.reserves.EUR
 
-                elif destiny_acc.currency == 3:
+                elif destiny_acc.currency.value == 3:
                     destiny = self.bank.reserves.GBP
                     
-                elif destiny_acc.currency == 4:
+                elif destiny_acc.currency.value == 4:
                     destiny = self.bank.reserves.JPY
 
-                elif destiny_acc.currency == 5:
+                elif destiny_acc.currency.value == 5:
                     destiny = self.bank.reserves.CHF
 
-                elif destiny_acc.currency == 6:
+                elif destiny_acc.currency.value == 6:
                     destiny = self.bank.reserves.BRL
 
                 destiny.lock()
                 withdraw = destiny.withdraw(amount_after_conversion)
                 destiny.unlock()
-                
+
                 if withdraw:
                     destiny_acc.deposit(amount_after_conversion)
 
