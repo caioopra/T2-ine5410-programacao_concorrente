@@ -128,44 +128,52 @@ class PaymentProcessor(Thread):
 
             
             if withdraw:
-                
+
                 amount_after_conversion = transaction.amount * get_exchange_rate(origin_acc.currency, destiny_acc.currency)
 
+                if origin_acc.currency == 1:
+                    origin = self.bank.reserves.USD
+                    
+                elif origin_acc.currency == 2:
+                    origin = self.bank.reserves.EUR
+
+                elif origin_acc.currency == 3:
+                    origin = self.bank.reserves.GBP
+
+                elif origin_acc.currency == 4:
+                    origin = self.bank.reserves.JPY
+                    
+                elif origin_acc.currency == 5:
+                    origin = self.bank.reserves.CHF
+
+                elif origin_acc.currency == 6:
+                    origin = self.bank.reserves.BRL
+
+                origin.lock()
+                origin.deposit(transaction.amount*1.01)
+                origin.unlock()
+
                 if destiny_acc.currency == 1:
-                    self.bank.reserves.USD.lock()
-                    self.bank.reserves.USD.deposit(amount_after_conversion * 1.01)
-                    withdraw = self.bank.reserves.USD.withdraw(amount_after_conversion)
-                    self.bank.reserves.USD.unlock()
+                    destiny = self.bank.reserves.USD
                     
                 elif destiny_acc.currency == 2:
-                    self.bank.reserves.EUR.lock()
-                    self.bank.reserves.EUR.deposit(amount_after_conversion * 1.01)
-                    withdraw = self.bank.reserves.EUR.withdraw(amount_after_conversion)
-                    self.bank.reserves.EUR.unlock()
-                   
+                    destiny = self.bank.reserves.EUR
+
                 elif destiny_acc.currency == 3:
-                    self.bank.reserves.GBP.lock()
-                    self.bank.reserves.GBP.deposit(amount_after_conversion * 1.01)
-                    withdraw = self.bank.reserves.GBP.withdraw(amount_after_conversion)
-                    self.bank.reserves.GBP.unlock()
+                    destiny = self.bank.reserves.GBP
                     
                 elif destiny_acc.currency == 4:
-                    self.bank.reserves.JPY.lock()
-                    self.bank.reserves.JPY.deposit(amount_after_conversion * 1.01)
-                    withdraw = self.bank.reserves.JPY.withdraw(amount_after_conversion)
-                    self.bank.reserves.JPY.unlock()
-                    
+                    destiny = self.bank.reserves.JPY
+
                 elif destiny_acc.currency == 5:
-                    self.bank.reserves.CHF.lock()
-                    self.bank.reserves.CHF.deposit(amount_after_conversion * 1.01)
-                    withdraw = self.bank.reserves.CHF.withdraw(amount_after_conversion)
-                    self.bank.reserves.CHF.unlock()
+                    destiny = self.bank.reserves.CHF
 
                 elif destiny_acc.currency == 6:
-                    self.bank.reserves.BRL.lock()
-                    self.bank.reserves.BRL.deposit(amount_after_conversion * 1.01)
-                    withdraw = self.bank.reserves.BRL.withdraw(amount_after_conversion)
-                    self.bank.reserves.BRL.unlock()
+                    destiny = self.bank.reserves.BRL
+
+                destiny.lock()
+                withdraw = destiny.withdraw(amount_after_conversion)
+                destiny.unlock()
                 
                 if withdraw:
                     destiny_acc.deposit(amount_after_conversion)
