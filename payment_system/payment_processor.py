@@ -182,7 +182,9 @@ class PaymentProcessor(Thread):
 
                 if withdraw:
                     destiny_acc.deposit(amount_after_conversion)
-
+                    self.bank.bank_profit_lock.acquire()
+                    self.bank.bank_profit += transaction.amount*0.01
+                    self.bank.bank_profit_lock.release()
             destiny_acc.unlock()
 
         # NÃO REMOVA ESSE SLEEP!
