@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from utils.currency import Currency
 from utils.logger import LOGGER
+from globals import banks
 
 from threading import Lock
 
@@ -86,14 +87,21 @@ class Account:
         """
         # TODO: IMPLEMENTE AS MODIFICAÇÕES NECESSÁRIAS NESTE MÉTODO !
 
+        # se tiver a quantia para retirar
         if self.balance >= amount:
             self.balance -= amount
             LOGGER.info(f"withdraw({amount}) successful!")
             return True
-        else:
-            overdrafted_amount = abs(self.balance - amount)
+        else:       # se não tiver a quantia, verifica se consegue usar o cheque especial
+            overdrafted_amount = abs(self.balance - amount)  # quantidade que precisa do cheque especial
             if self.overdraft_limit >= overdrafted_amount:
-                self.balance -= amount
+                self.balance -= ((amount - overdrafted_amount) + overdrafted_amount * 1.05)
+                
+                bank = banks[self._bank_id]
+                bank.bank_profit_lock.acquire()
+                bank.bank_profit += overdrafted_amount * 0.05
+                bank.bank_profit_lock.release()
+                
                 LOGGER.info(f"withdraw({amount}) successful with overdraft!")
 
                 return True

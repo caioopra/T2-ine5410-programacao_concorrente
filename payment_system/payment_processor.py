@@ -53,8 +53,8 @@ class PaymentProcessor(Thread):
             try:
                 self.bank.queue_semaphore.acquire()
                 transaction = queue.pop(0)
-                #LOGGER.info(f"Transaction_queue do Banco {self.bank._id}: {queue}")
-                LOGGER.info(f"{self.bank._id} ") # TODO: trocar de volta o print
+                # LOGGER.info(f"Transaction_queue do Banco {self.bank._id}: {queue}")
+                LOGGER.info(f"{self.bank._id} ")  # TODO: trocar de volta o print
             except Exception as err:
                 LOGGER.error(f"Falha em PaymentProcessor.run(): {err}")
             else:
@@ -74,10 +74,11 @@ class PaymentProcessor(Thread):
         Ela deve retornar o status da transacão processada.
         """
         # TODO: IMPLEMENTE/MODIFIQUE O CÓDIGO NECESSÁRIO ABAIXO !
-        # @Caio
-        # 0 = banco; 1 = conta
-        
-        # se for operação com o mesmo banco (nacional) 
+        LOGGER.info(
+            f"PaymentProcessor {self._id} do Banco {self.bank._id} iniciando processamento da Transaction {transaction._id}!"
+        )
+
+        # se for operação com o mesmo banco (nacional)
         origin_acc = self.bank.accounts[transaction.origin[1] - 1]
         if transaction.origin[0] == transaction.destination[0]:
             if transaction.origin[1] != transaction.destination[1]:
@@ -101,9 +102,8 @@ class PaymentProcessor(Thread):
                     transaction.set_status(TransactionStatus.SUCCESSFUL)
                 else:
                     transaction.set_status(TransactionStatus.FAILED)
-                    
+
                 destiny_acc.unlock()
-            
 
         # operação internacional
         else:
@@ -113,28 +113,32 @@ class PaymentProcessor(Thread):
             with banks[transaction.destination[0]].internacional_transactions_lock:
                 banks[transaction.destination[0]].internacional_transactions += 1
 
-            destiny_acc = banks[transaction.destination[0]].accounts[transaction.destination[1] - 1]
+            destiny_acc = banks[transaction.destination[0]].accounts[
+                transaction.destination[1] - 1
+            ]
 
             if transaction.origin[0] > transaction.destination[0]:
                 destiny_acc.lock()
                 origin_acc.lock()
-   
+
             else:
                 origin_acc.lock()
                 destiny_acc.lock()
 
-
-            withdraw = origin_acc.withdraw((transaction.amount) * 1.01)  # taxa de 1% sobre o valor para operação internacional
+            withdraw = origin_acc.withdraw(
+                (transaction.amount) * 1.01
+            )  # taxa de 1% sobre o valor para operação internacional
             origin_acc.unlock()
 
-            
             if withdraw:
 
-                amount_after_conversion = transaction.amount * get_exchange_rate(origin_acc.currency, destiny_acc.currency)
+                amount_after_conversion = transaction.amount * get_exchange_rate(
+                    origin_acc.currency, destiny_acc.currency
+                )
 
                 if origin_acc.currency.value == 1:
                     origin = self.bank.reserves.USD
-                    
+
                 elif origin_acc.currency.value == 2:
                     origin = self.bank.reserves.EUR
 
@@ -143,7 +147,7 @@ class PaymentProcessor(Thread):
 
                 elif origin_acc.currency.value == 4:
                     origin = self.bank.reserves.JPY
-                    
+
                 elif origin_acc.currency.value == 5:
                     origin = self.bank.reserves.CHF
 
@@ -151,18 +155,18 @@ class PaymentProcessor(Thread):
                     origin = self.bank.reserves.BRL
 
                 origin.lock()
-                origin.deposit(transaction.amount*1.01)
+                origin.deposit(transaction.amount * 1.01)
                 origin.unlock()
 
                 if destiny_acc.currency.value == 1:
                     destiny = self.bank.reserves.USD
-                    
+
                 elif destiny_acc.currency.value == 2:
                     destiny = self.bank.reserves.EUR
 
                 elif destiny_acc.currency.value == 3:
                     destiny = self.bank.reserves.GBP
-                    
+
                 elif destiny_acc.currency.value == 4:
                     destiny = self.bank.reserves.JPY
 
@@ -179,17 +183,7 @@ class PaymentProcessor(Thread):
                 if withdraw:
                     destiny_acc.deposit(amount_after_conversion)
 
-            
             destiny_acc.unlock()
-            
-            """
-            conta_origem -> banco_conta_origem -> conta_destino
-                -> trancar conta de destino antes de mexer nela?
-            """
-
-        LOGGER.info(
-            f"PaymentProcessor {self._id} do Banco {self.bank._id} iniciando processamento da Transaction {transaction._id}!"
-        )
 
         # NÃO REMOVA ESSE SLEEP!
         # Ele simula uma latência de processamento para a transação.
