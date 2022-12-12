@@ -54,6 +54,7 @@ class PaymentProcessor(Thread):
                 self.bank.queue_semaphore.acquire()
                 transaction = queue.pop(0)
                 LOGGER.info(f"Transaction_queue do Banco {self.bank._id}, tamanho da fila :{len(queue)}")
+                # LOGGER.info(f"Transaction_queue do Banco {self.bank._id}: {queue}")
                 # LOGGER.info(f"{self.bank._id} ")  # TODO: trocar de volta o print
             except Exception as err:
                 LOGGER.error(f"Falha em PaymentProcessor.run(): {err}")
